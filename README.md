@@ -5,7 +5,7 @@ A Go client library for the [Incident.io API](https://api-docs.incident.io/).
 ## Installation
 
 ```bash
-go get github.com/cpanato/incidentio-go
+go get github.com/cpanato/go-incident-io
 ```
 
 ## Quick Start
@@ -18,7 +18,7 @@ import (
     "fmt"
     "log"
 
-    incidentio "github.com/cpanato/incidentio-go"
+    incidentio "github.com/cpanato/go-incident-io"
 )
 
 func main() {
@@ -57,12 +57,12 @@ httpClient := &http.Client{
     Timeout: 60 * time.Second,
 }
 
-client := incidentio.NewClient("your-api-key",
+client := incidentio.NewClient("YOUR-API-KEY-HERE",
     incidentio.WithHTTPClient(httpClient))
 
 // Use a custom base URL (e.g., for testing)
-client := incidentio.NewClient("your-api-key",
-    incidentio.WithBaseURL("https://api.staging.incident.io/v2"))
+client := incidentio.NewClient("YOUR-API-KEY-HERE",
+    incidentio.WithBaseURL("https://api.staging.incident.io"))
 ```
 
 ## Examples
