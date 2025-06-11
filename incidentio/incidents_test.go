@@ -3,6 +3,7 @@ package incidentio
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -389,7 +390,8 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 		t.Error("Expected error, got nil")
 	}
 
-	errResp, ok := err.(*ErrorResponse)
+	errResp := &ErrorResponse{}
+	ok := errors.As(err, &errResp)
 	if !ok {
 		t.Errorf("Error type = %T, want *ErrorResponse", err)
 	}
@@ -467,7 +469,7 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 				t.Errorf("Timestamp.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && !ts.Time.Equal(tt.want) {
+			if !tt.wantErr && !ts.Equal(tt.want) {
 				t.Errorf("Timestamp.UnmarshalJSON() = %v, want %v", ts.Time, tt.want)
 			}
 		})
@@ -475,10 +477,10 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 }
 
 func TestErrorResponse_Error(t *testing.T) {
-	req, _ := http.NewRequest("GET", "https://api.incident.io/v2/incidents/123", nil)
+	req, _ := http.NewRequest(http.MethodGet, "https://api.incident.io/v2/incidents/123", nil)
 	resp := &http.Response{
 		Request:    req,
-		StatusCode: 404,
+		StatusCode: http.StatusNotFound,
 	}
 
 	err := &ErrorResponse{

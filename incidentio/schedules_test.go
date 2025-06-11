@@ -3,6 +3,7 @@ package incidentio
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -757,7 +758,8 @@ func TestSchedulesService_ErrorHandling(t *testing.T) {
 		t.Error("Expected error, got nil")
 	}
 
-	errResp, ok := err.(*ErrorResponse)
+	errResp := &ErrorResponse{}
+	ok := errors.As(err, &errResp)
 	if !ok {
 		t.Errorf("Error type = %T, want *ErrorResponse", err)
 	}
