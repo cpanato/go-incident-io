@@ -15,7 +15,7 @@ import (
 
 // Test helpers
 
-func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown func()) {
+func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown func()) { //nolint: unparam
 	mux = http.NewServeMux()
 	server := httptest.NewServer(mux)
 
@@ -77,7 +77,7 @@ func TestIncidentsService_List(t *testing.T) {
 			]
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -145,7 +145,7 @@ func TestIncidentsService_Get(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -252,7 +252,7 @@ func TestIncidentsService_Create(t *testing.T) {
 		}`
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -316,7 +316,7 @@ func TestIncidentsService_Update(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -364,7 +364,7 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
 
-	mux.HandleFunc("/v2/incidents/not-found", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/incidents/not-found", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		response := `{
 			"type": "validation_error",
@@ -380,7 +380,7 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()

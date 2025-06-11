@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// CreateRoleAssignment represents the payload for creating a role assignment in an incident.
 type CreateRoleAssignment struct {
 	IncidentRoleID string `json:"incident_role_id"`
 	UserID         string `json:"user_id"`
@@ -16,6 +17,7 @@ type IncidentRoleAssignment struct {
 	Assignee *User         `json:"assignee"`
 }
 
+// Severity represents the severity of an incident.
 type Severity struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -25,6 +27,7 @@ type Severity struct {
 	UpdatedAt   Timestamp `json:"updated_at"`
 }
 
+// IncidentRole represents a role that can be assigned to users in an incident.
 type IncidentRole struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`

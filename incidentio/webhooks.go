@@ -5,6 +5,7 @@ type WebhooksService struct {
 	client *Client
 }
 
+// Webhook represents a webhook in Incident.io.
 type Webhook struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`

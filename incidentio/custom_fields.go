@@ -10,6 +10,7 @@ type CustomFieldsService struct {
 	client *Client
 }
 
+// CustomField represents a custom field in Incident.io.
 type CustomField struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`

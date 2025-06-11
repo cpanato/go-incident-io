@@ -51,7 +51,7 @@ type CreateIncidentOptions struct {
 }
 
 // List returns a list of incidents.
-func (s *IncidentsService) List(ctx context.Context, opts *ListOptions) ([]*Incident, *http.Response, error) {
+func (s *IncidentsService) List(ctx context.Context, _ *ListOptions) ([]*Incident, *http.Response, error) {
 	u := "v2/incidents"
 
 	req, err := s.client.NewRequest("GET", u, nil)

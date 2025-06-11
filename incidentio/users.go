@@ -10,6 +10,7 @@ type UsersService struct {
 	client *Client
 }
 
+// User represents a user in Incident.io.
 type User struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -22,7 +23,7 @@ type User struct {
 }
 
 // List returns a list of users.
-func (s *UsersService) List(ctx context.Context, opts *ListOptions) ([]*User, *http.Response, error) {
+func (s *UsersService) List(ctx context.Context, _ *ListOptions) ([]*User, *http.Response, error) {
 	u := "v2/users"
 
 	req, err := s.client.NewRequest("GET", u, nil)
