@@ -18,7 +18,7 @@ import (
     "fmt"
     "log"
 
-    incidentio "github.com/cpanato/go-incident-io"
+    incidentio "github.com/cpanato/go-incident-io/incidentio"
 )
 
 func main() {
