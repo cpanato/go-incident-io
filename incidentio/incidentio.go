@@ -126,7 +126,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint: errcheck
 
 	err = CheckResponse(resp)
 	if err != nil {
@@ -135,7 +135,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 
 	if v != nil && resp.StatusCode != http.StatusNoContent {
 		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, resp.Body)
+			_, _ = io.Copy(w, resp.Body)
 		} else {
 			err = json.NewDecoder(resp.Body).Decode(v)
 		}
@@ -153,7 +153,7 @@ func CheckResponse(r *http.Response) error {
 	errorResponse := &ErrorResponse{Response: r}
 	data, err := io.ReadAll(r.Body)
 	if err == nil && data != nil {
-		json.Unmarshal(data, errorResponse)
+		_ = json.Unmarshal(data, errorResponse)
 	}
 
 	return errorResponse
@@ -186,17 +186,18 @@ type ListOptions struct {
 	After    string `url:"after,omitempty"`
 }
 
-// Common types used across the API
-
+// ExternalResource represents a common type used across the API
 type ExternalResource struct {
 	ExternalID  string `json:"external_id"`
 	DisplayName string `json:"display_name"`
 }
 
+// Timestamp is a wrapper around time.Time to handle JSON serialization
 type Timestamp struct {
 	time.Time
 }
 
+// UnmarshalJSON parses a JSON string
 func (t *Timestamp) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
@@ -210,6 +211,7 @@ func (t *Timestamp) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// MarshalJSON formats the Timestamp as a JSON string in RFC3339 format.
 func (t Timestamp) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Time.Format(time.RFC3339))
+	return json.Marshal(t.Format(time.RFC3339))
 }

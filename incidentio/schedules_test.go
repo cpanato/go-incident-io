@@ -3,6 +3,7 @@ package incidentio
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -54,7 +55,7 @@ func TestSchedulesService_List(t *testing.T) {
 			]
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -148,7 +149,7 @@ func TestSchedulesService_Get(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -224,7 +225,7 @@ func TestSchedulesService_Create(t *testing.T) {
 		}`
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -278,7 +279,7 @@ func TestSchedulesService_Update(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -355,7 +356,7 @@ func TestSchedulesService_ListEntries(t *testing.T) {
 			]
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -403,7 +404,7 @@ func TestSchedulesService_ListOverrides(t *testing.T) {
 			]
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -457,7 +458,7 @@ func TestSchedulesService_GetOverride(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -519,7 +520,7 @@ func TestSchedulesService_CreateOverride(t *testing.T) {
 		}`
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -574,7 +575,7 @@ func TestSchedulesService_UpdateOverride(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -717,7 +718,7 @@ func TestSchedulesService_ComplexRotation(t *testing.T) {
 		}`
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -731,7 +732,7 @@ func TestSchedulesService_ErrorHandling(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
 
-	mux.HandleFunc("/v2/schedules/not-found", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/schedules/not-found", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		response := `{
 			"type": "validation_error",
@@ -747,17 +748,17 @@ func TestSchedulesService_ErrorHandling(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
 	_, _, err := client.Schedules.Get(ctx, "not-found")
-
 	if err == nil {
 		t.Error("Expected error, got nil")
 	}
 
-	errResp, ok := err.(*ErrorResponse)
+	errResp := &ErrorResponse{}
+	ok := errors.As(err, &errResp)
 	if !ok {
 		t.Errorf("Error type = %T, want *ErrorResponse", err)
 	}

@@ -1,0 +1,38 @@
+---
+version: "2"
+run:
+  issues-exit-code: 1
+  timeout: 5m
+linters:
+  enable:
+    - asciicheck
+    - errorlint
+    - forbidigo
+    - gocritic
+    - gosec
+    - importas
+    - makezero
+    - misspell
+    - nilnesserr
+    - prealloc
+    - revive
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - whitespace
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: false
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

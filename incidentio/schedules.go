@@ -171,7 +171,7 @@ type UpdateOverrideOptions struct {
 }
 
 // List returns a list of schedules.
-func (s *SchedulesService) List(ctx context.Context, opts *ScheduleListOptions) ([]*Schedule, *http.Response, error) {
+func (s *SchedulesService) List(ctx context.Context, _ *ScheduleListOptions) ([]*Schedule, *http.Response, error) {
 	u := "v2/schedules"
 
 	req, err := s.client.NewRequest("GET", u, nil)
@@ -291,7 +291,7 @@ func (s *SchedulesService) ListEntries(ctx context.Context, scheduleID string, o
 }
 
 // ListOverrides returns overrides for a schedule.
-func (s *SchedulesService) ListOverrides(ctx context.Context, scheduleID string, opts *ListOptions) ([]*Override, *http.Response, error) {
+func (s *SchedulesService) ListOverrides(ctx context.Context, scheduleID string, _ *ListOptions) ([]*Override, *http.Response, error) {
 	u := fmt.Sprintf("v2/schedules/%s/overrides", scheduleID)
 
 	req, err := s.client.NewRequest("GET", u, nil)
@@ -380,71 +380,4 @@ func (s *SchedulesService) DeleteOverride(ctx context.Context, scheduleID, overr
 	}
 
 	return s.client.Do(ctx, req, nil)
-}
-
-// ExampleCreateSchedule shows how to create a new schedule
-func ExampleCreateSchedule(client *Client) {
-	ctx := context.Background()
-
-	// Define the schedule configuration
-	config := &ScheduleConfig{
-		Rotations: []RotationConfig{
-			{
-				ID:   "weekly-rotation",
-				Name: "Weekly Rotation",
-				Layers: []LayerConfig{
-					{
-						ID:   "layer-1",
-						Name: "Primary On-Call",
-						Users: []LayerUser{
-							{UserID: "01FCNDV6P870EA6S7TK1DSYDG0"},
-							{UserID: "01FCQSP07Z74QMMYPDDGQB9FTG"},
-						},
-					},
-				},
-				HandoverStartAt: Timestamp{time.Now()},
-				HandoversAt:     Timestamp{time.Now().Add(7 * 24 * time.Hour)},
-			},
-		},
-	}
-
-	opts := &CreateScheduleOptions{
-		Name:     "Engineering On-Call",
-		Timezone: "America/New_York",
-		Config:   config,
-	}
-
-	schedule, _, err := client.Schedules.Create(ctx, opts)
-	if err != nil {
-		fmt.Printf("Error creating schedule: %v\n", err)
-		return
-	}
-
-	fmt.Printf("Created schedule: %s\n", schedule.ID)
-}
-
-// ExampleListScheduleEntries shows how to list schedule entries for a time window
-func ExampleListScheduleEntries(client *Client) {
-	ctx := context.Background()
-
-	// Get entries for the next 7 days
-	opts := &ScheduleEntriesOptions{
-		EntryWindow: &TimeWindow{
-			StartAt: time.Now(),
-			EndAt:   time.Now().Add(7 * 24 * time.Hour),
-		},
-	}
-
-	entries, _, err := client.Schedules.ListEntries(ctx, "schedule-id", opts)
-	if err != nil {
-		fmt.Printf("Error listing entries: %v\n", err)
-		return
-	}
-
-	for _, entry := range entries {
-		fmt.Printf("User %s is on-call from %s to %s\n",
-			entry.UserID,
-			entry.Interval.StartAt.Format(time.RFC3339),
-			entry.Interval.EndAt.Format(time.RFC3339))
-	}
 }

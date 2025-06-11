@@ -3,6 +3,7 @@ package incidentio
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +15,7 @@ import (
 
 // Test helpers
 
-func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown func()) {
+func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown func()) { //nolint: unparam
 	mux = http.NewServeMux()
 	server := httptest.NewServer(mux)
 
@@ -76,7 +77,7 @@ func TestIncidentsService_List(t *testing.T) {
 			]
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -144,7 +145,7 @@ func TestIncidentsService_Get(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -251,7 +252,7 @@ func TestIncidentsService_Create(t *testing.T) {
 		}`
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -315,7 +316,7 @@ func TestIncidentsService_Update(t *testing.T) {
 			}
 		}`
 
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -363,7 +364,7 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
 
-	mux.HandleFunc("/v2/incidents/not-found", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/incidents/not-found", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		response := `{
 			"type": "validation_error",
@@ -379,7 +380,7 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprint(w, response)
+		_, _ = fmt.Fprint(w, response)
 	})
 
 	ctx := context.Background()
@@ -389,7 +390,8 @@ func TestIncidentsService_ErrorHandling(t *testing.T) {
 		t.Error("Expected error, got nil")
 	}
 
-	errResp, ok := err.(*ErrorResponse)
+	errResp := &ErrorResponse{}
+	ok := errors.As(err, &errResp)
 	if !ok {
 		t.Errorf("Error type = %T, want *ErrorResponse", err)
 	}
@@ -467,7 +469,7 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 				t.Errorf("Timestamp.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && !ts.Time.Equal(tt.want) {
+			if !tt.wantErr && !ts.Equal(tt.want) {
 				t.Errorf("Timestamp.UnmarshalJSON() = %v, want %v", ts.Time, tt.want)
 			}
 		})
@@ -475,10 +477,10 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 }
 
 func TestErrorResponse_Error(t *testing.T) {
-	req, _ := http.NewRequest("GET", "https://api.incident.io/v2/incidents/123", nil)
+	req, _ := http.NewRequest(http.MethodGet, "https://api.incident.io/v2/incidents/123", nil)
 	resp := &http.Response{
 		Request:    req,
-		StatusCode: 404,
+		StatusCode: http.StatusNotFound,
 	}
 
 	err := &ErrorResponse{

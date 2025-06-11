@@ -5,6 +5,7 @@ type ActionsService struct {
 	client *Client
 }
 
+// Action represents an action in Incident.io.
 type Action struct {
 	ID          string     `json:"id"`
 	IncidentID  string     `json:"incident_id"`

@@ -10,6 +10,7 @@ type IncidentTypesService struct {
 	client *Client
 }
 
+// IncidentType represents an incident type in Incident.io.
 type IncidentType struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
