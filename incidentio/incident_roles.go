@@ -7,8 +7,8 @@ import (
 
 // CreateRoleAssignment represents the payload for creating a role assignment in an incident.
 type CreateRoleAssignment struct {
-	IncidentRoleID string `json:"incident_role_id"`
-	UserID         string `json:"user_id"`
+	IncidentRoleID string        `json:"incident_role_id"`
+	Assignee       UserReference `json:"assignee"`
 }
 
 // IncidentRoleAssignment represents the assignment of a role to a user in an incident.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 )
@@ -70,6 +71,35 @@ func TestUsersService_List(t *testing.T) {
 
 	if !reflect.DeepEqual(users, expected) {
 		t.Errorf("Users.List returned %+v, want %+v", users, expected)
+	}
+}
+
+func TestUsersService_List_Options(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/users", func(w http.ResponseWriter, r *http.Request) {
+		testQuery(t, r, url.Values{
+			"email":            {"john@example.com"},
+			"slack_user_id":    {"U01"},
+			"include_inactive": {"true"},
+			"page_size":        {"50"},
+			"after":            {"user-0"},
+		})
+		_, _ = fmt.Fprint(w, `{"users": [{"id": "user-1", "slack_user_id": "U01"}]}`)
+	})
+
+	users, _, err := client.Users.List(context.Background(), &UserListOptions{
+		ListOptions:     ListOptions{PageSize: 50, After: "user-0"},
+		Email:           "john@example.com",
+		SlackUserID:     "U01",
+		IncludeInactive: true,
+	})
+	if err != nil {
+		t.Fatalf("Users.List returned error: %v", err)
+	}
+	if len(users) != 1 || users[0].SlackUserID != "U01" {
+		t.Errorf("unexpected users: %+v", users)
 	}
 }
 
