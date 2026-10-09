@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -186,10 +187,17 @@ type ListOptions struct {
 	After    string `url:"after,omitempty"`
 }
 
-// ExternalResource represents a common type used across the API
-type ExternalResource struct {
-	ExternalID  string `json:"external_id"`
-	DisplayName string `json:"display_name"`
+// apply adds the pagination parameters to q. It is safe to call on a nil receiver.
+func (o *ListOptions) apply(q url.Values) {
+	if o == nil {
+		return
+	}
+	if o.PageSize > 0 {
+		q.Set("page_size", strconv.Itoa(o.PageSize))
+	}
+	if o.After != "" {
+		q.Set("after", o.After)
+	}
 }
 
 // Timestamp is a wrapper around time.Time to handle JSON serialization

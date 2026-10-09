@@ -82,8 +82,9 @@ opts := &incidentio.CreateIncidentOptions{
     Summary:        "Users are experiencing intermittent connection timeouts",
     IncidentTypeID: incidentTypes[0].ID,
     SeverityID:     severities[0].ID,
-    Mode:           "real", // or "test"
-    Visibility:     "public", // or "private"
+    Mode:           "standard", // or "test", "retrospective", "tutorial"
+    Visibility:     "public",   // or "private"
+    // IdempotencyKey is generated for you when empty. Set it to make retries safe.
 }
 
 incident, _, err := client.Incidents.Create(ctx, opts)
@@ -97,10 +98,12 @@ fmt.Printf("Created incident: %s\n", incident.ID)
 ### Updating an Incident
 
 ```go
-status := "resolved"
+statusID := "01FCNDV6P870EA6S7TK1DSYDG0" // from the incident statuses of your organisation
+summary := "Issue has been resolved by restarting the database connection pool"
 updateOpts := &incidentio.UpdateIncidentOptions{
-    Status: &status,
-    Summary: &"Issue has been resolved by restarting the database connection pool",
+    IncidentStatusID:      &statusID,
+    Summary:               &summary,
+    NotifyIncidentChannel: true,
 }
 
 incident, _, err := client.Incidents.Update(ctx, "incident-id", updateOpts)
@@ -123,7 +126,7 @@ opts := &incidentio.CreateIncidentOptions{
     IncidentRoleAssignments: []incidentio.CreateRoleAssignment{
         {
             IncidentRoleID: roles[0].ID, // e.g., "Incident Lead"
-            UserID:         users[0].ID,
+            Assignee:       incidentio.UserReference{ID: users[0].ID},
         },
     },
 }
@@ -139,11 +142,49 @@ customFields, _, _ := client.CustomFields.List(ctx)
 opts := &incidentio.CreateIncidentOptions{
     Name:           "Performance Degradation",
     IncidentTypeID: "type-id",
-    CustomFieldValues: map[string]interface{}{
-        customFields[0].ID: "high-priority",
-        customFields[1].ID: "customer-facing",
+    CustomFieldEntries: []incidentio.CustomFieldEntryPayload{
+        {
+            CustomFieldID: customFields[0].ID,
+            Values:        []incidentio.CustomFieldValuePayload{{ValueText: "high-priority"}},
+        },
     },
 }
+
+// Manage custom fields
+field, _, _ := client.CustomFields.Create(ctx, &incidentio.CreateCustomFieldOptions{
+    Name:        "Customer impact",
+    Description: "How customers are affected",
+    FieldType:   "single_select",
+})
+```
+
+### Filtering Incidents
+
+```go
+incidents, _, err := client.Incidents.List(ctx, &incidentio.IncidentListOptions{
+    ListOptions:    incidentio.ListOptions{PageSize: 50},
+    SortBy:         "created_at_oldest_first",
+    StatusCategory: incidentio.Filter{"one_of": {"active"}},
+    CreatedAt:      incidentio.Filter{"gte": {"2024-01-01"}},
+})
+```
+
+### Schedules and Overrides
+
+```go
+entries, _, _ := client.Schedules.ListEntries(ctx, "schedule-id", &incidentio.ScheduleEntriesOptions{
+    EntryWindow: &incidentio.TimeWindow{StartAt: start, EndAt: end},
+})
+fmt.Println(entries.Final) // effective schedule with overrides applied
+
+override, _, _ := client.Schedules.CreateOverride(ctx, &incidentio.CreateOverrideOptions{
+    ScheduleID: "schedule-id",
+    RotationID: "rotation-id",
+    LayerID:    "layer-id",
+    User:       incidentio.UserReference{Email: "jane@example.com"},
+    StartAt:    incidentio.Timestamp{Time: start},
+    EndAt:      incidentio.Timestamp{Time: end},
+})
 ```
 
 ### Error Handling
@@ -164,47 +205,49 @@ if err != nil {
 
 ### Pagination
 
-For endpoints that support pagination:
+List options embed `ListOptions` (`PageSize` and `After`). The cursor is the ID of
+the last item you received:
 
 ```go
-opts := &incidentio.ListOptions{
-    PageSize: 25,
-    After:    "01FCNDV6P870EA6S7TK1DSYDG0", // cursor from previous response
+opts := &incidentio.IncidentListOptions{
+    ListOptions: incidentio.ListOptions{
+        PageSize: 25,
+        After:    "01FCNDV6P870EA6S7TK1DSYDG0", // ID of the last incident of the previous page
+    },
 }
 
-incidents, resp, err := client.Incidents.List(ctx, opts)
-// Check resp.Header for pagination info
+incidents, _, err := client.Incidents.List(ctx, opts)
 ```
 
 ## Available Services
 
 The client provides access to the following Incident.io API resources:
 
-- **Incidents** - Create, read, update, and delete incidents
+- **Incidents** - Create, list (with filters), get, edit and import postmortem documents
 - **Severities** - List available severity levels
 - **IncidentTypes** - List available incident types
 - **IncidentRoles** - List available incident roles
-- **CustomFields** - List custom fields configured for your organization
+- **CustomFields** - Create, list, get, update and delete custom fields
 - **Users** - List users in your organization
-- **Actions** - Manage incident actions (coming soon)
-- **Workflows** - Manage workflows (coming soon)
-- **Schedules** - Manage on-call schedules (coming soon)
-- **Webhooks** - Manage webhook endpoints (coming soon)
+- **Actions** - Create, list, get, update and delete incident actions
+- **Workflows** - Create, list, get, update and delete workflows
+- **Schedules** - Manage on-call schedules, entries and overrides
+- **Webhooks** - Placeholder (the API only documents webhook events)
 
 ## API Coverage
 
 This client currently implements the core functionality of the Incident.io API. The following endpoints are fully supported:
 
-- ✅ Incidents (Create, List, Get, Update, Delete)
+- ✅ Incidents (Create, List, Get, Edit, Import postmortem document)
 - ✅ Severities (List)
 - ✅ Incident Types (List)
 - ✅ Incident Roles (List)
-- ✅ Custom Fields (List)
+- ✅ Custom Fields (Create, List, Get, Update, Delete)
 - ✅ Users (List)
-- 🚧 Actions (Coming soon)
-- 🚧 Workflows (Coming soon)
-- 🚧 Schedules (Coming soon)
-- 🚧 Webhooks (Coming soon)
+- ✅ Actions v3 (Create, List, Get, Update, Delete)
+- ✅ Workflows (Create, List, Get, Update, Delete)
+- ✅ Schedules (CRUD, entries, overrides)
+- 🚧 Webhooks (no management API)
 
 ## Contributing
 
