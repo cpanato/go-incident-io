@@ -228,7 +228,10 @@ The client provides access to the following Incident.io API resources:
 - **IncidentTypes** - List available incident types
 - **IncidentRoles** - List available incident roles
 - **CustomFields** - Create, list, get, update and delete custom fields
-- **Users** - List users in your organization
+- **Users** - List and get users in your organization
+- **IncidentUpdates** - List and post incident updates
+- **IncidentTimelineItems** - List and create timeline items
+- **IncidentParticipants** - List incident participants
 - **Actions** - Create, list, get, update and delete incident actions
 - **Workflows** - Create, list, get, update and delete workflows
 - **Schedules** - Manage on-call schedules, entries and overrides
@@ -243,7 +246,10 @@ This client currently implements the core functionality of the Incident.io API. 
 - ✅ Incident Types (List)
 - ✅ Incident Roles (List)
 - ✅ Custom Fields (Create, List, Get, Update, Delete)
-- ✅ Users (List)
+- ✅ Users (List, Get)
+- ✅ Incident Updates (List, Create)
+- ✅ Incident Timeline Items (List, Create)
+- ✅ Incident Participants (List)
 - ✅ Actions v3 (Create, List, Get, Update, Delete)
 - ✅ Workflows (Create, List, Get, Update, Delete)
 - ✅ Schedules (CRUD, entries, overrides)

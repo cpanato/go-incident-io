@@ -2,6 +2,7 @@ package incidentio
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -17,6 +18,8 @@ type User struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Role  string `json:"role"`
+	// IsActive is only returned when fetching a single user.
+	IsActive bool `json:"is_active,omitempty"`
 	// SlackUserID is the flat Slack user ID returned by the API.
 	SlackUserID string `json:"slack_user_id,omitempty"`
 	Slack       *struct {
@@ -50,4 +53,9 @@ func (s *UsersService) List(ctx context.Context, opts *UserListOptions) ([]*User
 	}
 
 	return getKey[[]*User](ctx, s.client, "GET", "v2/users", q, nil, "users")
+}
+
+// Get returns a single user.
+func (s *UsersService) Get(ctx context.Context, id string) (*User, *http.Response, error) {
+	return getKey[*User](ctx, s.client, "GET", fmt.Sprintf("v2/users/%s", id), nil, nil, "user")
 }

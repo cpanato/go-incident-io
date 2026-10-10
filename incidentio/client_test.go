@@ -192,9 +192,30 @@ func apiCalls(c *Client) map[string]func(ctx context.Context) error {
 		"Severities.List":    func(ctx context.Context) error { _, _, err := c.Severities.List(ctx); return err },
 		"IncidentTypes.List": func(ctx context.Context) error { _, _, err := c.IncidentTypes.List(ctx); return err },
 		"IncidentRoles.List": func(ctx context.Context) error { _, _, err := c.IncidentRoles.List(ctx); return err },
-		"Users.List":         func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
-		"CustomFields.List":  func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
-		"CustomFields.Get":   func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
+		"IncidentUpdates.List": func(ctx context.Context) error {
+			_, _, err := c.IncidentUpdates.List(ctx, nil)
+			return err
+		},
+		"IncidentUpdates.Create": func(ctx context.Context) error {
+			_, _, err := c.IncidentUpdates.Create(ctx, &CreateIncidentUpdateOptions{IncidentID: "x"})
+			return err
+		},
+		"IncidentTimelineItems.List": func(ctx context.Context) error {
+			_, _, err := c.IncidentTimelineItems.List(ctx, nil)
+			return err
+		},
+		"IncidentTimelineItems.Create": func(ctx context.Context) error {
+			_, _, err := c.IncidentTimelineItems.Create(ctx, &CreateIncidentTimelineItemOptions{IncidentID: "x"})
+			return err
+		},
+		"IncidentParticipants.List": func(ctx context.Context) error {
+			_, _, err := c.IncidentParticipants.List(ctx, "x")
+			return err
+		},
+		"Users.Get":         func(ctx context.Context) error { _, _, err := c.Users.Get(ctx, "x"); return err },
+		"Users.List":        func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
+		"CustomFields.List": func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
+		"CustomFields.Get":  func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
 		"CustomFields.Create": func(ctx context.Context) error {
 			_, _, err := c.CustomFields.Create(ctx, &CreateCustomFieldOptions{})
 			return err
