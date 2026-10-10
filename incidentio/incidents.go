@@ -233,54 +233,19 @@ func addFilter(q url.Values, key string, f Filter) {
 
 // List returns a list of incidents.
 func (s *IncidentsService) List(ctx context.Context, opts *IncidentListOptions) ([]*Incident, *http.Response, error) {
-	u := "v2/incidents"
+	q := url.Values{}
+	opts.apply(q)
 
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if opts != nil {
-		q := req.URL.Query()
-		opts.apply(q)
-		req.URL.RawQuery = q.Encode()
-	}
-
-	var result struct {
-		Incidents []*Incident `json:"incidents"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Incidents, resp, nil
+	return getKey[[]*Incident](ctx, s.client, "GET", "v2/incidents", q, nil, "incidents")
 }
 
 // Get returns a single incident.
 func (s *IncidentsService) Get(ctx context.Context, id string) (*Incident, *http.Response, error) {
-	u := fmt.Sprintf("v2/incidents/%s", id)
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Incident *Incident `json:"incident"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Incident, resp, nil
+	return getKey[*Incident](ctx, s.client, "GET", fmt.Sprintf("v2/incidents/%s", id), nil, nil, "incident")
 }
 
 // Create creates a new incident.
 func (s *IncidentsService) Create(ctx context.Context, opts *CreateIncidentOptions) (*Incident, *http.Response, error) {
-	u := "v2/incidents"
-
 	body := opts
 	if opts != nil && opts.IdempotencyKey == "" {
 		key, err := newIdempotencyKey()
@@ -292,20 +257,7 @@ func (s *IncidentsService) Create(ctx context.Context, opts *CreateIncidentOptio
 		body = &cp
 	}
 
-	req, err := s.client.NewRequest("POST", u, body)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Incident *Incident `json:"incident"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Incident, resp, nil
+	return getKey[*Incident](ctx, s.client, "POST", "v2/incidents", nil, body, "incident")
 }
 
 func newIdempotencyKey() (string, error) {
@@ -335,8 +287,6 @@ type UpdateIncidentOptions struct {
 
 // Update edits an incident.
 func (s *IncidentsService) Update(ctx context.Context, id string, opts *UpdateIncidentOptions) (*Incident, *http.Response, error) {
-	u := fmt.Sprintf("v2/incidents/%s/actions/edit", id)
-
 	if opts == nil {
 		opts = &UpdateIncidentOptions{}
 	}
@@ -345,20 +295,7 @@ func (s *IncidentsService) Update(ctx context.Context, id string, opts *UpdateIn
 		NotifyIncidentChannel bool                   `json:"notify_incident_channel"`
 	}{opts, opts.NotifyIncidentChannel}
 
-	req, err := s.client.NewRequest("POST", u, body)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Incident *Incident `json:"incident"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Incident, resp, nil
+	return getKey[*Incident](ctx, s.client, "POST", fmt.Sprintf("v2/incidents/%s/actions/edit", id), nil, body, "incident")
 }
 
 // PostmortemDocument represents a postmortem document attached to an incident.
@@ -382,18 +319,5 @@ func (s *IncidentsService) ImportPostmortemDocument(ctx context.Context, id, tit
 		Content string `json:"content"`
 	}{title, content}
 
-	req, err := s.client.NewRequest("POST", u, body)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		PostmortemDocument *PostmortemDocument `json:"postmortem_document"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.PostmortemDocument, resp, nil
+	return getKey[*PostmortemDocument](ctx, s.client, "POST", u, nil, body, "postmortem_document")
 }

@@ -3,6 +3,7 @@ package incidentio
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 // UsersService handles communication with the users related methods.
@@ -34,15 +35,8 @@ type UserListOptions struct {
 
 // List returns a list of users.
 func (s *UsersService) List(ctx context.Context, opts *UserListOptions) ([]*User, *http.Response, error) {
-	u := "v2/users"
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+	q := url.Values{}
 	if opts != nil {
-		q := req.URL.Query()
 		opts.apply(q)
 		if opts.Email != "" {
 			q.Set("email", opts.Email)
@@ -53,16 +47,7 @@ func (s *UsersService) List(ctx context.Context, opts *UserListOptions) ([]*User
 		if opts.IncludeInactive {
 			q.Set("include_inactive", "true")
 		}
-		req.URL.RawQuery = q.Encode()
 	}
 
-	var result struct {
-		Users []*User `json:"users"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Users, resp, nil
+	return getKey[[]*User](ctx, s.client, "GET", "v2/users", q, nil, "users")
 }

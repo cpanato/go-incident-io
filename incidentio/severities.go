@@ -12,20 +12,5 @@ type SeveritiesService struct {
 
 // List returns a list of severities.
 func (s *SeveritiesService) List(ctx context.Context) ([]*Severity, *http.Response, error) {
-	u := "v1/severities"
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Severities []*Severity `json:"severities"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Severities, resp, nil
+	return getKey[[]*Severity](ctx, s.client, "GET", "v1/severities", nil, nil, "severities")
 }

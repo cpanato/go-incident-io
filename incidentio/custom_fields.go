@@ -50,85 +50,25 @@ type UpdateCustomFieldOptions struct {
 
 // List returns a list of custom fields.
 func (s *CustomFieldsService) List(ctx context.Context) ([]*CustomField, *http.Response, error) {
-	u := "v2/custom_fields"
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		CustomFields []*CustomField `json:"custom_fields"`
-	}
-
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.CustomFields, resp, nil
+	return getKey[[]*CustomField](ctx, s.client, "GET", "v2/custom_fields", nil, nil, "custom_fields")
 }
 
 // Get returns a single custom field.
 func (s *CustomFieldsService) Get(ctx context.Context, id string) (*CustomField, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", fmt.Sprintf("v2/custom_fields/%s", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		CustomField *CustomField `json:"custom_field"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.CustomField, resp, nil
+	return getKey[*CustomField](ctx, s.client, "GET", fmt.Sprintf("v2/custom_fields/%s", id), nil, nil, "custom_field")
 }
 
 // Create creates a new custom field.
 func (s *CustomFieldsService) Create(ctx context.Context, opts *CreateCustomFieldOptions) (*CustomField, *http.Response, error) {
-	req, err := s.client.NewRequest("POST", "v2/custom_fields", opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		CustomField *CustomField `json:"custom_field"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.CustomField, resp, nil
+	return getKey[*CustomField](ctx, s.client, "POST", "v2/custom_fields", nil, opts, "custom_field")
 }
 
 // Update updates a custom field.
 func (s *CustomFieldsService) Update(ctx context.Context, id string, opts *UpdateCustomFieldOptions) (*CustomField, *http.Response, error) {
-	req, err := s.client.NewRequest("PUT", fmt.Sprintf("v2/custom_fields/%s", id), opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		CustomField *CustomField `json:"custom_field"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.CustomField, resp, nil
+	return getKey[*CustomField](ctx, s.client, "PUT", fmt.Sprintf("v2/custom_fields/%s", id), nil, opts, "custom_field")
 }
 
 // Delete deletes a custom field.
 func (s *CustomFieldsService) Delete(ctx context.Context, id string) (*http.Response, error) {
-	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("v2/custom_fields/%s", id), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.client.Do(ctx, req, nil)
+	return s.client.send(ctx, "DELETE", fmt.Sprintf("v2/custom_fields/%s", id), nil, nil, nil)
 }
