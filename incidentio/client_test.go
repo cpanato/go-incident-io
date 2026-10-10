@@ -212,10 +212,39 @@ func apiCalls(c *Client) map[string]func(ctx context.Context) error {
 			_, _, err := c.IncidentParticipants.List(ctx, "x")
 			return err
 		},
-		"Users.Get":         func(ctx context.Context) error { _, _, err := c.Users.Get(ctx, "x"); return err },
-		"Users.List":        func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
-		"CustomFields.List": func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
-		"CustomFields.Get":  func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
+		"Users.Get":   func(ctx context.Context) error { _, _, err := c.Users.Get(ctx, "x"); return err },
+		"Alerts.List": func(ctx context.Context) error { _, _, err := c.Alerts.List(ctx, nil); return err },
+		"Alerts.Get":  func(ctx context.Context) error { _, _, err := c.Alerts.Get(ctx, "x"); return err },
+		"Alerts.Resolve": func(ctx context.Context) error {
+			_, _, err := c.Alerts.Resolve(ctx, "x")
+			return err
+		},
+		"Alerts.AddTags": func(ctx context.Context) error {
+			_, _, err := c.Alerts.AddTags(ctx, "x", []string{"a"})
+			return err
+		},
+		"Alerts.RemoveTags": func(ctx context.Context) error {
+			_, _, err := c.Alerts.RemoveTags(ctx, "x", []string{"a"})
+			return err
+		},
+		"Alerts.SetTags": func(ctx context.Context) error {
+			_, _, err := c.Alerts.SetTags(ctx, "x", []string{"a"})
+			return err
+		},
+		"AlertSources.List": func(ctx context.Context) error { _, _, err := c.AlertSources.List(ctx); return err },
+		"AlertSources.Get":  func(ctx context.Context) error { _, _, err := c.AlertSources.Get(ctx, "x"); return err },
+		"AlertSources.Create": func(ctx context.Context) error {
+			_, _, err := c.AlertSources.Create(ctx, &CreateAlertSourceOptions{})
+			return err
+		},
+		"AlertSources.Update": func(ctx context.Context) error {
+			_, _, err := c.AlertSources.Update(ctx, "x", &UpdateAlertSourceOptions{})
+			return err
+		},
+		"AlertSources.Delete": func(ctx context.Context) error { _, err := c.AlertSources.Delete(ctx, "x"); return err },
+		"Users.List":          func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
+		"CustomFields.List":   func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
+		"CustomFields.Get":    func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
 		"CustomFields.Create": func(ctx context.Context) error {
 			_, _, err := c.CustomFields.Create(ctx, &CreateCustomFieldOptions{})
 			return err
