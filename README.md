@@ -237,6 +237,8 @@ The client provides access to the following Incident.io API resources:
 - **Schedules** - Manage on-call schedules, entries and overrides
 - **Alerts** - List (with filters), get, resolve and manage tags
 - **AlertSources** - Create, list, get, update and delete alert sources
+- **CatalogTypes** - Create, list, get, update, update schema and delete catalog types
+- **CatalogEntries** - Create, list, get, update, bulk update and delete catalog entries
 - **Webhooks** - Placeholder (the API only documents webhook events)
 
 ## API Coverage
@@ -257,6 +259,8 @@ This client currently implements the core functionality of the Incident.io API. 
 - ✅ Schedules (CRUD, entries, overrides)
 - ✅ Alerts (List, Get, Resolve, AddTags, RemoveTags, SetTags)
 - ✅ Alert Sources (Create, List, Get, Update, Delete)
+- ✅ Catalog Types (Create, List, Get, Update, UpdateSchema, Delete)
+- ✅ Catalog Entries (Create, List, Get, Update, BulkUpdate, Delete)
 - 🚧 Webhooks (no management API)
 
 ## Contributing

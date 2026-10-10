@@ -242,9 +242,42 @@ func apiCalls(c *Client) map[string]func(ctx context.Context) error {
 			return err
 		},
 		"AlertSources.Delete": func(ctx context.Context) error { _, err := c.AlertSources.Delete(ctx, "x"); return err },
-		"Users.List":          func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
-		"CustomFields.List":   func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
-		"CustomFields.Get":    func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
+		"CatalogTypes.List":   func(ctx context.Context) error { _, _, err := c.CatalogTypes.List(ctx); return err },
+		"CatalogTypes.Get":    func(ctx context.Context) error { _, _, err := c.CatalogTypes.Get(ctx, "x"); return err },
+		"CatalogTypes.Create": func(ctx context.Context) error {
+			_, _, err := c.CatalogTypes.Create(ctx, &CreateCatalogTypeOptions{})
+			return err
+		},
+		"CatalogTypes.Update": func(ctx context.Context) error {
+			_, _, err := c.CatalogTypes.Update(ctx, "x", &UpdateCatalogTypeOptions{})
+			return err
+		},
+		"CatalogTypes.UpdateSchema": func(ctx context.Context) error {
+			_, _, err := c.CatalogTypes.UpdateSchema(ctx, "x", &UpdateCatalogTypeSchemaOptions{})
+			return err
+		},
+		"CatalogTypes.Delete": func(ctx context.Context) error { _, err := c.CatalogTypes.Delete(ctx, "x"); return err },
+		"CatalogEntries.List": func(ctx context.Context) error {
+			_, _, err := c.CatalogEntries.List(ctx, nil)
+			return err
+		},
+		"CatalogEntries.Get": func(ctx context.Context) error { _, _, err := c.CatalogEntries.Get(ctx, "x"); return err },
+		"CatalogEntries.Create": func(ctx context.Context) error {
+			_, _, err := c.CatalogEntries.Create(ctx, &CreateCatalogEntryOptions{})
+			return err
+		},
+		"CatalogEntries.Update": func(ctx context.Context) error {
+			_, _, err := c.CatalogEntries.Update(ctx, "x", &UpdateCatalogEntryOptions{})
+			return err
+		},
+		"CatalogEntries.Delete": func(ctx context.Context) error { _, err := c.CatalogEntries.Delete(ctx, "x"); return err },
+		"CatalogEntries.BulkUpdate": func(ctx context.Context) error {
+			_, err := c.CatalogEntries.BulkUpdate(ctx, &BulkUpdateCatalogEntriesOptions{})
+			return err
+		},
+		"Users.List":        func(ctx context.Context) error { _, _, err := c.Users.List(ctx, nil); return err },
+		"CustomFields.List": func(ctx context.Context) error { _, _, err := c.CustomFields.List(ctx); return err },
+		"CustomFields.Get":  func(ctx context.Context) error { _, _, err := c.CustomFields.Get(ctx, "x"); return err },
 		"CustomFields.Create": func(ctx context.Context) error {
 			_, _, err := c.CustomFields.Create(ctx, &CreateCustomFieldOptions{})
 			return err
@@ -342,8 +375,8 @@ func TestServices_InvalidJSON(t *testing.T) {
 	defer closeServer()
 
 	for name, call := range apiCalls(c) {
-		// Delete methods do not decode a body.
-		if strings.Contains(name, "Delete") {
+		// Delete and BulkUpdate do not decode a body.
+		if strings.Contains(name, "Delete") || strings.Contains(name, "BulkUpdate") {
 			continue
 		}
 		t.Run(name, func(t *testing.T) {
