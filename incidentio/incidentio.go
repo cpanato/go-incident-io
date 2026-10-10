@@ -29,12 +29,17 @@ type Client struct {
 	Severities    *SeveritiesService
 	IncidentTypes *IncidentTypesService
 	IncidentRoles *IncidentRolesService
-	CustomFields  *CustomFieldsService
-	Actions       *ActionsService
-	Workflows     *WorkflowsService
-	Schedules     *SchedulesService
-	Users         *UsersService
-	Webhooks      *WebhooksService
+
+	IncidentUpdates       *IncidentUpdatesService
+	IncidentTimelineItems *IncidentTimelineItemsService
+	IncidentParticipants  *IncidentParticipantsService
+
+	CustomFields *CustomFieldsService
+	Actions      *ActionsService
+	Workflows    *WorkflowsService
+	Schedules    *SchedulesService
+	Users        *UsersService
+	Webhooks     *WebhooksService
 }
 
 // ClientOption allows for functional options to configure the client.
@@ -76,6 +81,9 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.Severities = &SeveritiesService{client: c}
 	c.IncidentTypes = &IncidentTypesService{client: c}
 	c.IncidentRoles = &IncidentRolesService{client: c}
+	c.IncidentUpdates = &IncidentUpdatesService{client: c}
+	c.IncidentTimelineItems = &IncidentTimelineItemsService{client: c}
+	c.IncidentParticipants = &IncidentParticipantsService{client: c}
 	c.CustomFields = &CustomFieldsService{client: c}
 	c.Actions = &ActionsService{client: c}
 	c.Workflows = &WorkflowsService{client: c}
