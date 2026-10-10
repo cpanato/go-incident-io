@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -190,137 +191,48 @@ type UpdateOverrideOptions struct {
 
 // List returns a list of schedules.
 func (s *SchedulesService) List(ctx context.Context, opts *ScheduleListOptions) ([]*Schedule, *http.Response, error) {
-	u := "v2/schedules"
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+	q := url.Values{}
 	if opts != nil {
-		q := req.URL.Query()
 		opts.apply(q)
-		req.URL.RawQuery = q.Encode()
 	}
 
-	var result struct {
-		Schedules []*Schedule `json:"schedules"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Schedules, resp, nil
+	return getKey[[]*Schedule](ctx, s.client, "GET", "v2/schedules", q, nil, "schedules")
 }
 
 // Get returns a single schedule.
 func (s *SchedulesService) Get(ctx context.Context, id string) (*Schedule, *http.Response, error) {
-	u := fmt.Sprintf("v2/schedules/%s", id)
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Schedule *Schedule `json:"schedule"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Schedule, resp, nil
+	return getKey[*Schedule](ctx, s.client, "GET", fmt.Sprintf("v2/schedules/%s", id), nil, nil, "schedule")
 }
 
 // Create creates a new schedule.
 func (s *SchedulesService) Create(ctx context.Context, opts *CreateScheduleOptions) (*Schedule, *http.Response, error) {
-	u := "v2/schedules"
-
-	req, err := s.client.NewRequest("POST", u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Schedule *Schedule `json:"schedule"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Schedule, resp, nil
+	return getKey[*Schedule](ctx, s.client, "POST", "v2/schedules", nil, opts, "schedule")
 }
 
 // Update updates a schedule.
 func (s *SchedulesService) Update(ctx context.Context, id string, opts *UpdateScheduleOptions) (*Schedule, *http.Response, error) {
-	u := fmt.Sprintf("v2/schedules/%s", id)
-
-	req, err := s.client.NewRequest("PUT", u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Schedule *Schedule `json:"schedule"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Schedule, resp, nil
+	return getKey[*Schedule](ctx, s.client, "PUT", fmt.Sprintf("v2/schedules/%s", id), nil, opts, "schedule")
 }
 
 // Delete deletes a schedule.
 func (s *SchedulesService) Delete(ctx context.Context, id string) (*http.Response, error) {
-	u := fmt.Sprintf("v2/schedules/%s", id)
-
-	req, err := s.client.NewRequest("DELETE", u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.client.Do(ctx, req, nil)
+	return s.client.send(ctx, "DELETE", fmt.Sprintf("v2/schedules/%s", id), nil, nil, nil)
 }
 
 // ListEntries returns the entries of a schedule, grouped as scheduled, overrides and final.
 func (s *SchedulesService) ListEntries(ctx context.Context, scheduleID string, opts *ScheduleEntriesOptions) (*ScheduleEntries, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", "v2/schedule_entries", nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	q := req.URL.Query()
-	q.Set("schedule_id", scheduleID)
+	q := url.Values{"schedule_id": {scheduleID}}
 	if opts != nil && opts.EntryWindow != nil {
 		q.Set("entry_window_start", opts.EntryWindow.StartAt.Format(time.RFC3339))
 		q.Set("entry_window_end", opts.EntryWindow.EndAt.Format(time.RFC3339))
 	}
-	req.URL.RawQuery = q.Encode()
 
-	var result struct {
-		ScheduleEntries *ScheduleEntries `json:"schedule_entries"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.ScheduleEntries, resp, nil
+	return getKey[*ScheduleEntries](ctx, s.client, "GET", "v2/schedule_entries", q, nil, "schedule_entries")
 }
 
 // ListOverrides returns overrides for a schedule.
 func (s *SchedulesService) ListOverrides(ctx context.Context, scheduleID string, opts *ListOverridesOptions) ([]*Override, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", "v2/schedule_overrides", nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	q := req.URL.Query()
-	q.Set("schedule_id", scheduleID)
+	q := url.Values{"schedule_id": {scheduleID}}
 	if opts != nil {
 		opts.apply(q)
 		if opts.RotationID != "" {
@@ -330,85 +242,26 @@ func (s *SchedulesService) ListOverrides(ctx context.Context, scheduleID string,
 			q.Set("layer_id", opts.LayerID)
 		}
 	}
-	req.URL.RawQuery = q.Encode()
 
-	var result struct {
-		Overrides []*Override `json:"overrides"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Overrides, resp, nil
+	return getKey[[]*Override](ctx, s.client, "GET", "v2/schedule_overrides", q, nil, "overrides")
 }
 
 // GetOverride returns a single override.
 func (s *SchedulesService) GetOverride(ctx context.Context, overrideID string) (*Override, *http.Response, error) {
-	u := fmt.Sprintf("v2/schedule_overrides/%s", overrideID)
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Override *Override `json:"override"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Override, resp, nil
+	return getKey[*Override](ctx, s.client, "GET", fmt.Sprintf("v2/schedule_overrides/%s", overrideID), nil, nil, "override")
 }
 
 // CreateOverride creates a new override for a schedule.
 func (s *SchedulesService) CreateOverride(ctx context.Context, opts *CreateOverrideOptions) (*Override, *http.Response, error) {
-	req, err := s.client.NewRequest("POST", "v2/schedule_overrides", opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Override *Override `json:"override"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Override, resp, nil
+	return getKey[*Override](ctx, s.client, "POST", "v2/schedule_overrides", nil, opts, "override")
 }
 
 // UpdateOverride updates an override.
 func (s *SchedulesService) UpdateOverride(ctx context.Context, overrideID string, opts *UpdateOverrideOptions) (*Override, *http.Response, error) {
-	u := fmt.Sprintf("v2/schedule_overrides/%s", overrideID)
-
-	req, err := s.client.NewRequest("PUT", u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Override *Override `json:"override"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Override, resp, nil
+	return getKey[*Override](ctx, s.client, "PUT", fmt.Sprintf("v2/schedule_overrides/%s", overrideID), nil, opts, "override")
 }
 
 // DeleteOverride deletes an override.
 func (s *SchedulesService) DeleteOverride(ctx context.Context, overrideID string) (*http.Response, error) {
-	u := fmt.Sprintf("v2/schedule_overrides/%s", overrideID)
-
-	req, err := s.client.NewRequest("DELETE", u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.client.Do(ctx, req, nil)
+	return s.client.send(ctx, "DELETE", fmt.Sprintf("v2/schedule_overrides/%s", overrideID), nil, nil, nil)
 }

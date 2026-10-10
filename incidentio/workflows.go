@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // WorkflowsService handles communication with the workflows related methods.
@@ -98,89 +99,31 @@ type UpdateWorkflowOptions struct {
 
 // List returns a list of workflows.
 func (s *WorkflowsService) List(ctx context.Context) ([]*Workflow, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", "v2/workflows", nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Workflows []*Workflow `json:"workflows"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Workflows, resp, nil
+	return getKey[[]*Workflow](ctx, s.client, "GET", "v2/workflows", nil, nil, "workflows")
 }
 
 // Get returns a single workflow. When skipStepUpgrades is true, steps are
 // returned as stored rather than upgraded to their latest version.
 func (s *WorkflowsService) Get(ctx context.Context, id string, skipStepUpgrades bool) (*Workflow, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", fmt.Sprintf("v2/workflows/%s", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+	q := url.Values{}
 	if skipStepUpgrades {
-		q := req.URL.Query()
 		q.Set("skip_step_upgrades", "true")
-		req.URL.RawQuery = q.Encode()
 	}
 
-	var result struct {
-		Workflow *Workflow `json:"workflow"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Workflow, resp, nil
+	return getKey[*Workflow](ctx, s.client, "GET", fmt.Sprintf("v2/workflows/%s", id), q, nil, "workflow")
 }
 
 // Create creates a new workflow.
 func (s *WorkflowsService) Create(ctx context.Context, opts *CreateWorkflowOptions) (*Workflow, *http.Response, error) {
-	req, err := s.client.NewRequest("POST", "v2/workflows", opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Workflow *Workflow `json:"workflow"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Workflow, resp, nil
+	return getKey[*Workflow](ctx, s.client, "POST", "v2/workflows", nil, opts, "workflow")
 }
 
 // Update updates a workflow.
 func (s *WorkflowsService) Update(ctx context.Context, id string, opts *UpdateWorkflowOptions) (*Workflow, *http.Response, error) {
-	req, err := s.client.NewRequest("PUT", fmt.Sprintf("v2/workflows/%s", id), opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Workflow *Workflow `json:"workflow"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Workflow, resp, nil
+	return getKey[*Workflow](ctx, s.client, "PUT", fmt.Sprintf("v2/workflows/%s", id), nil, opts, "workflow")
 }
 
 // Delete deletes a workflow.
 func (s *WorkflowsService) Delete(ctx context.Context, id string) (*http.Response, error) {
-	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("v2/workflows/%s", id), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.client.Do(ctx, req, nil)
+	return s.client.send(ctx, "DELETE", fmt.Sprintf("v2/workflows/%s", id), nil, nil, nil)
 }

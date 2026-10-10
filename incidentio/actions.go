@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // ActionsService handles communication with the actions related methods.
@@ -51,13 +52,8 @@ type UpdateActionOptions struct {
 
 // List returns a list of actions.
 func (s *ActionsService) List(ctx context.Context, opts *ActionListOptions) ([]*Action, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", "v3/actions", nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
+	q := url.Values{}
 	if opts != nil {
-		q := req.URL.Query()
 		opts.apply(q)
 		if opts.IncidentID != "" {
 			q.Set("incident_id", opts.IncidentID)
@@ -67,80 +63,27 @@ func (s *ActionsService) List(ctx context.Context, opts *ActionListOptions) ([]*
 		}
 		addFilter(q, "created_at", opts.CreatedAt)
 		addFilter(q, "updated_at", opts.UpdatedAt)
-		req.URL.RawQuery = q.Encode()
 	}
 
-	var result struct {
-		Actions []*Action `json:"actions"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Actions, resp, nil
+	return getKey[[]*Action](ctx, s.client, "GET", "v3/actions", q, nil, "actions")
 }
 
 // Get returns a single action.
 func (s *ActionsService) Get(ctx context.Context, id string) (*Action, *http.Response, error) {
-	req, err := s.client.NewRequest("GET", fmt.Sprintf("v3/actions/%s", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Action *Action `json:"action"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Action, resp, nil
+	return getKey[*Action](ctx, s.client, "GET", fmt.Sprintf("v3/actions/%s", id), nil, nil, "action")
 }
 
 // Create creates a new action.
 func (s *ActionsService) Create(ctx context.Context, opts *CreateActionOptions) (*Action, *http.Response, error) {
-	req, err := s.client.NewRequest("POST", "v3/actions", opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Action *Action `json:"action"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Action, resp, nil
+	return getKey[*Action](ctx, s.client, "POST", "v3/actions", nil, opts, "action")
 }
 
 // Update updates an action.
 func (s *ActionsService) Update(ctx context.Context, id string, opts *UpdateActionOptions) (*Action, *http.Response, error) {
-	req, err := s.client.NewRequest("PUT", fmt.Sprintf("v3/actions/%s", id), opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		Action *Action `json:"action"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.Action, resp, nil
+	return getKey[*Action](ctx, s.client, "PUT", fmt.Sprintf("v3/actions/%s", id), nil, opts, "action")
 }
 
 // Delete deletes an action.
 func (s *ActionsService) Delete(ctx context.Context, id string) (*http.Response, error) {
-	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("v3/actions/%s", id), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.client.Do(ctx, req, nil)
+	return s.client.send(ctx, "DELETE", fmt.Sprintf("v3/actions/%s", id), nil, nil, nil)
 }

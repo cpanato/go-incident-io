@@ -21,20 +21,5 @@ type IncidentType struct {
 
 // List returns a list of incident types.
 func (s *IncidentTypesService) List(ctx context.Context) ([]*IncidentType, *http.Response, error) {
-	u := "v1/incident_types"
-
-	req, err := s.client.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var result struct {
-		IncidentTypes []*IncidentType `json:"incident_types"`
-	}
-	resp, err := s.client.Do(ctx, req, &result)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return result.IncidentTypes, resp, nil
+	return getKey[[]*IncidentType](ctx, s.client, "GET", "v1/incident_types", nil, nil, "incident_types")
 }
