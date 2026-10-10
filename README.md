@@ -235,6 +235,8 @@ The client provides access to the following Incident.io API resources:
 - **Actions** - Create, list, get, update and delete incident actions
 - **Workflows** - Create, list, get, update and delete workflows
 - **Schedules** - Manage on-call schedules, entries and overrides
+- **Alerts** - List (with filters), get, resolve and manage tags
+- **AlertSources** - Create, list, get, update and delete alert sources
 - **Webhooks** - Placeholder (the API only documents webhook events)
 
 ## API Coverage
@@ -253,6 +255,8 @@ This client currently implements the core functionality of the Incident.io API. 
 - ✅ Actions v3 (Create, List, Get, Update, Delete)
 - ✅ Workflows (Create, List, Get, Update, Delete)
 - ✅ Schedules (CRUD, entries, overrides)
+- ✅ Alerts (List, Get, Resolve, AddTags, RemoveTags, SetTags)
+- ✅ Alert Sources (Create, List, Get, Update, Delete)
 - 🚧 Webhooks (no management API)
 
 ## Contributing

@@ -40,6 +40,9 @@ type Client struct {
 	Schedules    *SchedulesService
 	Users        *UsersService
 	Webhooks     *WebhooksService
+
+	Alerts       *AlertsService
+	AlertSources *AlertSourcesService
 }
 
 // ClientOption allows for functional options to configure the client.
@@ -81,6 +84,8 @@ func NewClient(apiKey string, opts ...ClientOption) *Client {
 	c.Severities = &SeveritiesService{client: c}
 	c.IncidentTypes = &IncidentTypesService{client: c}
 	c.IncidentRoles = &IncidentRolesService{client: c}
+	c.Alerts = &AlertsService{client: c}
+	c.AlertSources = &AlertSourcesService{client: c}
 	c.IncidentUpdates = &IncidentUpdatesService{client: c}
 	c.IncidentTimelineItems = &IncidentTimelineItemsService{client: c}
 	c.IncidentParticipants = &IncidentParticipantsService{client: c}
